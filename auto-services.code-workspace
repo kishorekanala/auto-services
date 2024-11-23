@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"path": "fuel-tank-cap-hmi"
+		},
+		{
+			"path": "vehicle-hmi"
+		},
+		{
+			"name": "auto-services",
+			"path": "."
+		}
+	],
+	"settings": {}
+}
