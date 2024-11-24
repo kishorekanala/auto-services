@@ -1,14 +1,7 @@
 {
 	"folders": [
 		{
-			"name": "auto-services",
 			"path": "."
-		},
-		{
-			"path": "fueltankcap"
-		},
-		{
-			"path": "vehicle-hmi"
 		}
 	],
 	"settings": {}
