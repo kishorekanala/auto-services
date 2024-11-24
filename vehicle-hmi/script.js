@@ -1,25 +1,16 @@
-const zmq = require('zeromq');
-const sock = zmq.socket('sub');
-
-sock.connect('tcp://localhost:5555');
-
-sock.on('message', function(topic, message) {
-    const status = message.toString();
+function toggleButtonAction() {
     const button = document.getElementById('toggleButton');
     const statusLabel = document.getElementById('ftchmi_currentstatusvalue');
-
-    if (status === 'close') {
-        button.innerText = 'Open';
-        statusLabel.innerText = 'Closed';
-    } else if (status === 'open') {
+    const fuelSwitch = document.getElementById('fuelSwitch');
+    
+    if (button.innerText === 'Open') {
         button.innerText = 'Close';
         statusLabel.innerText = 'Open';
+        fuelSwitch.checked = true;
+    } else {
+        button.innerText = 'Open';
+        statusLabel.innerText = 'Closed';
+        fuelSwitch.checked = false;
     }
-
-    // Unsubscribe after receiving the status
-    sock.unsubscribe('FUELTANKCAP_STATUS');
-});
-
-function toggleButtonAction() {
-    sock.subscribe('FUELTANKCAP_STATUS');
 }
+    
