@@ -13,4 +13,3 @@ function toggleButtonAction() {
         fuelSwitch.checked = false;
     }
 }
-    
