@@ -1,45 +1,55 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"time"
+	"log"
+	"net/http"
 
-	zmq "github.com/pebbe/zmq4"
+	"github.com/gorilla/websocket"
 )
 
-func main() {
-	// Create a new ZeroMQ context
-	context, err := zmq.NewContext()
+// Define a struct to parse the JSON message
+type Message struct {
+	Action string `json:"action"`
+}
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
+}
+
+func handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		fmt.Println("Error creating ZeroMQ context:", err)
+		log.Println("Error upgrading to WebSocket:", err)
 		return
 	}
-	defer context.Term()
+	defer conn.Close()
 
-	// Create a new ZeroMQ publisher socket
-	publisher, err := context.NewSocket(zmq.PUB)
-	if err != nil {
-		fmt.Println("Error creating ZeroMQ publisher socket:", err)
-		return
-	}
-	defer publisher.Close()
-
-	// Bind the publisher socket to a TCP address
-	err = publisher.Bind("tcp://*:5555")
-	if err != nil {
-		fmt.Println("Error binding ZeroMQ publisher socket:", err)
-		return
-	}
-
-	// Publish the FUELTANKCAP STATUS message with "close" status
 	for {
-		message := "FUELTANKSTATUS close"
-		_, err = publisher.Send(message, 0)
+		_, message, err := conn.ReadMessage()
 		if err != nil {
-			fmt.Println("Error sending message:", err)
-			return
+			log.Println("Error reading message:", err)
+			break
 		}
-		fmt.Println("Published:", message)
-		time.Sleep(1 * time.Second) // Publish every second
+
+		var msg Message
+		err = json.Unmarshal(message, &msg)
+		if err != nil {
+			log.Println("Error unmarshalling JSON:", err)
+			continue
+		}
+
+		if msg.Action == "openFuelTank" {
+			fmt.Println("Received action to open fuel tank")
+		}
 	}
+}
+
+func main() {
+	http.HandleFunc("/", handleWebSocket)
+	log.Println("WebSocket server started on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
