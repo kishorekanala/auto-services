@@ -59,6 +59,22 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+		if msg.Action == "closeFuelTank" {
+			fmt.Println("Received action to close fuel tank")
+			if closeFuelTank() == 0 {
+				fmt.Println("Sending message to acknowledge that close is successful")
+				ackMessage := Message{Action: "Closeack"}
+				ackMessageJSON, err := json.Marshal(ackMessage)
+				if err != nil {
+					log.Println("Error marshalling JSON:", err)
+					return
+				}
+				err = conn.WriteMessage(websocket.TextMessage, ackMessageJSON)
+				if err != nil {
+					log.Println("Error writing message:", err)
+				}
+			}
+		}
 	}
 }
 
@@ -69,6 +85,17 @@ func openFuelTank() uint8 {
 	time.Sleep(10 * time.Second)
 
 	fmt.Println("Fuel tank opened successfully")
+
+	return 0
+}
+
+func closeFuelTank() uint8 {
+	fmt.Println("Closing fuel tank")
+
+	// Simulate opening the fuel tank
+	time.Sleep(10 * time.Second)
+
+	fmt.Println("Fuel tank closed successfully")
 
 	return 0
 }

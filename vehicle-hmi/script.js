@@ -3,6 +3,8 @@ function toggleButtonAction() {
     const statusLabel = document.getElementById('ftchmi_currentstatusvalue');
     const fuelSwitch = document.getElementById('fuelSwitch');
     
+    const socket = new WebSocket('ws://localhost:8080');
+
     if (button.innerText === 'Open') {
         console.log('Trigger opening the fuel tank');
 
@@ -10,8 +12,6 @@ function toggleButtonAction() {
         const message = JSON.stringify({
             action: 'openFuelTank'
         });
-
-        const socket = new WebSocket('ws://localhost:8080');
 
         socket.onopen = function() {
             socket.send(message);
@@ -36,8 +36,33 @@ function toggleButtonAction() {
         };
 
     } else {
-        button.innerText = 'Open';
-        statusLabel.innerText = 'Closed';
-        fuelSwitch.checked = false;
+        console.log('Trigger closing the fuel tank');
+
+        // Send a message to the fuel tank to open
+        const message = JSON.stringify({
+            action: 'closeFuelTank'
+        });
+
+        socket.onopen = function() {
+            socket.send(message);
+        };
+
+        socket.onerror = function(error) {
+            console.error('WebSocket Error: ' + error);
+        };
+
+        socket.onmessage = function(event) {
+            const response = JSON.parse(event.data);
+            console.log('Received message from fuel tank:', response);
+            console.log('Action:', response.action);
+            if (response.action === 'Closeack') {
+                console.log('Fuel tank opened successfully');
+                button.innerText = 'Open';
+                statusLabel.innerText = 'Closed';
+                fuelSwitch.checked = false;
+            } else {
+            console.error('Failed to open fuel tank');
+            }
+        };
     }
 }
