@@ -21,9 +21,20 @@ function toggleButtonAction() {
             console.error('WebSocket Error: ' + error);
         };
 
-        button.innerText = 'Close';
-        statusLabel.innerText = 'Open';
-        fuelSwitch.checked = true;
+        socket.onmessage = function(event) {
+            const response = JSON.parse(event.data);
+            console.log('Received message from fuel tank:', response);
+            console.log('Action:', response.action);
+            if (response.action === 'Openack') {
+                console.log('Fuel tank opened successfully');
+                button.innerText = 'Close';
+                statusLabel.innerText = 'Open';
+                fuelSwitch.checked = true;
+            } else {
+            console.error('Failed to open fuel tank');
+            }
+        };
+
     } else {
         button.innerText = 'Open';
         statusLabel.innerText = 'Closed';
