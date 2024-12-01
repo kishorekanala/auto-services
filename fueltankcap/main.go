@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -44,8 +45,16 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 		if msg.Action == "openFuelTank" {
 			fmt.Println("Received action to open fuel tank")
+			openFuelTank()
 		}
 	}
+}
+
+func openFuelTank() {
+	fmt.Println("Opening fuel tank")
+
+	// Simulate opening the fuel tank
+	time.Sleep(10 * time.Second)
 }
 
 func main() {
