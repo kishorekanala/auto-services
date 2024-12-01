@@ -56,12 +56,12 @@ function toggleButtonAction() {
             console.log('Received message from fuel tank:', response);
             console.log('Action:', response.action);
             if (response.action === 'Closeack') {
-                console.log('Fuel tank opened successfully');
+                console.log('Fuel tank closed successfully');
                 button.innerText = 'Open';
                 statusLabel.innerText = 'Closed';
                 fuelSwitch.checked = false;
             } else {
-            console.error('Failed to open fuel tank');
+            console.error('Failed to close fuel tank');
             }
         };
     }
