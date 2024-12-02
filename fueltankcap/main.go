@@ -15,6 +15,65 @@ type Message struct {
 	Action string `json:"action"`
 }
 
+type State int
+
+const (
+	StateIdle State = iota
+	StateOpening
+	StateOpen
+	StateClosing
+	StateClosed
+)
+
+type Event int
+
+const (
+	EventOpen Event = iota
+	EventClose
+	EventOpened
+	EventClosed
+)
+
+type StateMachine struct {
+	currentState State
+}
+
+func NewStateMachine() *StateMachine {
+	return &StateMachine{currentState: StateIdle}
+}
+
+func (sm *StateMachine) Transition(event Event) {
+	switch sm.currentState {
+	case StateIdle:
+		if event == EventOpen {
+			sm.currentState = StateOpening
+			fmt.Println("Transitioning to StateOpening")
+		}
+	case StateOpening:
+		if event == EventOpened {
+			sm.currentState = StateOpen
+			fmt.Println("Transitioning to StateOpen")
+		}
+	case StateOpen:
+		if event == EventClose {
+			sm.currentState = StateClosing
+			fmt.Println("Transitioning to StateClosing")
+		}
+	case StateClosing:
+		if event == EventClosed {
+			sm.currentState = StateClosed
+			fmt.Println("Transitioning to StateClosed")
+		}
+	case StateClosed:
+		if event == EventOpen {
+			sm.currentState = StateOpening
+			fmt.Println("Transitioning to StateOpening")
+		}
+	}
+}
+
+var sm = NewStateMachine()
+
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
 		return true
@@ -80,22 +139,26 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 func openFuelTank() uint8 {
 	fmt.Println("Opening fuel tank")
+	sm.Transition(EventOpen)
 
 	// Simulate opening the fuel tank
 	time.Sleep(10 * time.Second)
 
 	fmt.Println("Fuel tank opened successfully")
+	sm.Transition(EventOpened)
 
 	return 0
 }
 
 func closeFuelTank() uint8 {
 	fmt.Println("Closing fuel tank")
+	sm.Transition(EventClose)
 
-	// Simulate opening the fuel tank
+	// Simulate closing the fuel tank
 	time.Sleep(10 * time.Second)
 
 	fmt.Println("Fuel tank closed successfully")
+	sm.Transition(EventClosed)
 
 	return 0
 }
